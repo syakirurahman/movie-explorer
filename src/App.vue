@@ -1,85 +1,110 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { useMessagesStore } from '@/stores/messages'
+import { mdiHome, mdiStar } from '@mdi/js'
+
+const route = useRoute()
+const messages = useMessagesStore()
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div class="wrapper">
+    <div class="container">
+      <header class="topbar">
+        <div class="brand">
+          <h1>Movie Explorer</h1>
+          <p class="subtitle">Search, discover, and collect your favorite movies.</p>
+        </div>
+      </header>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+      <nav class="nav">
+        <RouterLink :class="{ active: route.name === 'home' }" to="/"
+          ><VIcon size="20" :icon="mdiHome" /> Home</RouterLink
+        >
+        <RouterLink :class="{ active: route.name === 'favorites' }" to="/favorites">
+          <VIcon size="20" :icon="mdiStar" /> Favorites
+        </RouterLink>
       </nav>
-    </div>
-  </header>
 
-  <RouterView />
+      <section class="view">
+        <RouterView />
+      </section>
+    </div>
+
+    <VSnackbarQueue
+      v-model="messages.queue"
+      closable
+      location="bottom"
+      elevation="12"
+      timeout="4000"
+    />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+<style scoped lang="scss">
+.wrapper {
+  min-height: 100vh;
+  color: #1e2a3b;
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+  .container {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 20px;
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(20, 40, 80, 0.05);
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+    .topbar {
+      padding: 4px 2px 12px;
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
+      .brand {
+        h1 {
+          margin: 0;
+          font-size: 24px;
+          letter-spacing: -0.5px;
+        }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
+        .subtitle {
+          margin: 4px 0 0;
+          color: #5c6b80;
+        }
+      }
+    }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      margin: 0 -20px;
+      border-bottom: 1px solid var(--ui-border);
 
-nav a:first-of-type {
-  border: 0;
-}
+      a {
+        text-decoration: none;
+        color: #2f3c4f;
+        padding: 8px 12px;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        &.active {
+          color: var(--primary-color);
+          font-weight: 500;
+          border-bottom-color: var(--primary-color);
+        }
+      }
+    }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+    .divider {
+      height: 1px;
+      background: var(--ui-border);
+      margin: 4px 0 8px;
+    }
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+    .view {
+      padding-top: 8px;
+    }
   }
 }
 </style>
