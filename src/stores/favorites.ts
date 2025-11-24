@@ -1,36 +1,37 @@
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Movie } from '@/services/movies'
 
 const STORAGE_KEY = 'movie-explorer:favorites'
 
+const isBrowser = typeof window !== 'undefined'
+
+const parseStoredMovies = (raw: string | null): Movie[] => {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (item): item is Movie =>
+        Boolean(item) &&
+        typeof item.Title === 'string' &&
+        typeof item.Year === 'string' &&
+        typeof item.imdbID === 'string',
+    )
+  } catch {
+    return []
+  }
+}
+
 export const useFavoritesStore = defineStore('favorites', () => {
   const favorites = ref<Movie[]>([])
 
-  const loadFromStorage = () => {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return
-    try {
-      const parsed = JSON.parse(raw) as Movie[]
-      favorites.value = parsed
-    } catch {
-      favorites.value = []
-    }
-  }
-
   const persist = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites.value))
+    if (!isBrowser) return
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites.value))
+    } catch {}
   }
-
-  loadFromStorage()
-
-  watch(
-    favorites,
-    () => {
-      persist()
-    },
-    { deep: true },
-  )
 
   const ids = computed(() => new Set(favorites.value.map((movie) => movie.imdbID)))
 
@@ -38,11 +39,14 @@ export const useFavoritesStore = defineStore('favorites', () => {
 
   const add = (movie: Movie) => {
     if (isFavorite(movie.imdbID)) return
-    favorites.value.push(movie)
+    favorites.value = [...favorites.value, movie]
+    persist()
   }
 
   const remove = (imdbID: string) => {
+    if (!isFavorite(imdbID)) return
     favorites.value = favorites.value.filter((movie) => movie.imdbID !== imdbID)
+    persist()
   }
 
   const toggle = (movie: Movie) => {
@@ -52,6 +56,13 @@ export const useFavoritesStore = defineStore('favorites', () => {
       add(movie)
     }
   }
+
+  const loadFromStorage = () => {
+    if (!isBrowser) return
+    favorites.value = parseStoredMovies(localStorage.getItem(STORAGE_KEY))
+  }
+
+  loadFromStorage()
 
   return {
     favorites,

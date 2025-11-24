@@ -55,6 +55,7 @@ onBeforeUnmount(() => {
           variant="outlined"
           placeholder="e.g. Harry"
           clearable
+          hide-details
           width="300"
         />
         <VTextField
@@ -64,6 +65,7 @@ onBeforeUnmount(() => {
           variant="outlined"
           placeholder="1998"
           clearable
+          hide-details
           type="number"
           min="1900"
           max="2100"
@@ -76,6 +78,7 @@ onBeforeUnmount(() => {
           variant="outlined"
           placeholder="tt1234567"
           clearable
+          hide-details
           width="200"
         />
       </div>
@@ -99,7 +102,6 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .filter {
-  padding: 16px 0 0;
   form {
     display: flex;
     gap: 12px;

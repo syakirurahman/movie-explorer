@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import FilterBar, { type MovieFilters } from '@/components/FilterBar.vue'
 import MovieGrid from '@/components/MovieGrid.vue'
-import { searchMovies, type Movie } from '@/services/movies'
+import { MovieApiError, searchMovies, type Movie } from '@/services/movies'
 import { useMessagesStore } from '@/stores/messages'
 
 const messages = useMessagesStore()
@@ -19,6 +19,7 @@ const error = ref('')
 const page = ref(1)
 const totalPages = ref(1)
 const total = ref(0)
+let isDestroyed = false
 
 const runSearch = async () => {
   loading.value = true
@@ -32,14 +33,21 @@ const runSearch = async () => {
       page: page.value,
     })
 
+    if (isDestroyed) return
+
     movies.value = response.data
     totalPages.value = response.total_pages || 1
     total.value = response.total || 0
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Something went wrong'
-    messages.addMessage(error.value, 'error')
+    const message = err instanceof Error ? err.message : 'Something went wrong'
+
+    if (err instanceof MovieApiError && err.message === 'Stale response discarded') return
+
+    error.value = message
+    messages.addMessage(message, 'error')
     movies.value = []
   } finally {
+    if (isDestroyed) return
     loading.value = false
   }
 }
@@ -65,10 +73,21 @@ const handlePage = (value: number) => {
 onMounted(() => {
   runSearch()
 })
+
+onBeforeUnmount(() => {
+  isDestroyed = true
+})
 </script>
 
 <template>
   <main class="page">
+    <header class="page-header">
+      <div>
+        <h2>Browse Movies</h2>
+        <p class="text-muted">Search by title, year, or IMDb ID to find something to watch.</p>
+      </div>
+    </header>
+
     <FilterBar
       :filters="filters"
       :loading="loading"
@@ -116,37 +135,22 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-.page {
+.result-note {
+  color: #5c6b80;
+  padding: 8px 0;
+}
+
+.pagination {
+  padding-top: 16px;
   display: flex;
-  flex-direction: column;
+  width: 100%;
   gap: 16px;
+  justify-content: space-between;
+}
 
-  .result-note {
-    color: #5c6b80;
-    padding: 8px 0;
-  }
-
-  .empty {
-    text-align: center;
-    padding: 32px 12px;
-    color: #5c6b80;
-    border: 1px dashed var(--ui-border);
-    border-radius: 6px;
-    margin-bottom: 12px;
-  }
-
-  .pagination {
-    padding-top: 16px;
-    display: flex;
-    width: 100%;
-    gap: 16px;
-    justify-content: space-between;
-  }
-
-  .chip-spin {
-    .v-icon {
-      animation: spin 1s linear infinite;
-    }
+.chip-spin {
+  .v-icon {
+    animation: spin 1s linear infinite;
   }
 }
 

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { Movie } from '@/services/movies'
 import { useFavoritesStore } from '@/stores/favorites'
+import { useMessagesStore } from '@/stores/messages'
 import { mdiStar } from '@mdi/js'
 
 defineProps<{
@@ -10,12 +11,21 @@ defineProps<{
 }>()
 
 const favorites = useFavoritesStore()
+const messages = useMessagesStore()
 
 const favoriteIds = computed(() => favorites.ids)
 
 const toggleFavorite = (movie: Movie) => {
+  const alreadyFavorite = favorites.isFavorite(movie.imdbID)
   favorites.toggle(movie)
+  messages.addMessage(
+    alreadyFavorite ? `${movie.Title} removed from favorites` : `${movie.Title} added to favorites`,
+    alreadyFavorite ? 'warning' : 'success',
+  )
 }
+
+const favoriteTooltip = (movie: Movie) =>
+  favoriteIds.value.has(movie.imdbID) ? 'Remove from favorites' : 'Add to favorites'
 </script>
 
 <template>
@@ -49,17 +59,22 @@ const toggleFavorite = (movie: Movie) => {
           <span class="poster-text">Poster</span>
         </div>
 
-        <VBtn
-          class="favorite-toggle"
-          variant="text"
-          size="small"
-          density="compact"
-          icon
-          :color="favoriteIds.has(movie.imdbID) ? 'amber' : 'white'"
-          :aria-label="favoriteIds.has(movie.imdbID) ? 'Unfavorite' : 'Favorite'"
-          @click.stop="toggleFavorite(movie)"
-          ><VIcon :icon="mdiStar"
-        /></VBtn>
+        <VTooltip :text="favoriteTooltip(movie)" location="bottom">
+          <template #activator="{ props }">
+            <VBtn
+              :class="favoriteIds.has(movie.imdbID) ? 'favorite-toggle active' : 'favorite-toggle'"
+              variant="text"
+              size="small"
+              density="compact"
+              icon
+              :color="favoriteIds.has(movie.imdbID) ? 'amber' : 'white'"
+              :aria-label="favoriteIds.has(movie.imdbID) ? 'Unfavorite' : 'Favorite'"
+              v-bind="props"
+              @click.stop="toggleFavorite(movie)"
+              ><VIcon :icon="mdiStar"
+            /></VBtn>
+          </template>
+        </VTooltip>
 
         <div class="overlay">
           <div class="title-line">
@@ -73,7 +88,7 @@ const toggleFavorite = (movie: Movie) => {
               class="imdb-link"
               :href="`https://www.imdb.com/title/${movie.imdbID}`"
               target="_blank"
-              rel="noreferrer"
+              rel="noreferrer noopener"
             >
               Open on IMDb
             </a>
@@ -135,6 +150,9 @@ const toggleFavorite = (movie: Movie) => {
       opacity: 0;
       transition: opacity 0.2s ease;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      &.active {
+        opacity: 1;
+      }
     }
 
     &:hover .favorite-toggle,

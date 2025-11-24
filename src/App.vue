@@ -31,13 +31,7 @@ const messages = useMessagesStore()
       </section>
     </div>
 
-    <VSnackbarQueue
-      v-model="messages.queue"
-      closable
-      location="bottom"
-      elevation="12"
-      timeout="4000"
-    />
+    <VSnackbarQueue v-model="messages.queue" closable location="bottom" timeout="3000" />
   </div>
 </template>
 

@@ -11,14 +11,30 @@ const variantToColor: Record<MessageVariant, string> = {
   error: 'error',
 }
 
+type Message = SnackbarQueueMessage & {
+  id: number
+  createdAt: number
+}
+
+const MAX_QUEUE = 5
+
 export const useMessagesStore = defineStore('messages', () => {
-  const queue = ref<SnackbarQueueMessage[]>([])
+  const queue = ref<Message[]>([])
+  let idCounter = 0
 
   const addMessage = (text: string, variant: MessageVariant = 'info') => {
-    queue.value.push({
+    const message: Message = {
+      id: ++idCounter,
+      createdAt: Date.now(),
       text,
       color: variantToColor[variant],
-    })
+    }
+
+    queue.value = [...queue.value.slice(-(MAX_QUEUE - 1)), message]
+  }
+
+  const remove = (id: number) => {
+    queue.value = queue.value.filter((message) => message.id !== id)
   }
 
   const clear = () => {
@@ -28,6 +44,7 @@ export const useMessagesStore = defineStore('messages', () => {
   return {
     queue,
     addMessage,
+    remove,
     clear,
   }
 })

@@ -19,7 +19,18 @@ export interface MovieSearchResponse {
   data: Movie[]
 }
 
+export class MovieApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status?: number,
+  ) {
+    super(message)
+    this.name = 'MovieApiError'
+  }
+}
+
 const BASE_URL = 'https://jsonmock.hackerrank.com/api/movies/search'
+const REQUEST_TIMEOUT_MS = 10000
 
 const buildQuery = (params: MovieSearchParams): string => {
   const search = new URLSearchParams()
@@ -32,16 +43,39 @@ const buildQuery = (params: MovieSearchParams): string => {
   return search.toString()
 }
 
-export const searchMovies = async (
-  params: MovieSearchParams,
-): Promise<MovieSearchResponse> => {
+let lastRequestId = 0
+
+export const searchMovies = async (params: MovieSearchParams): Promise<MovieSearchResponse> => {
   const query = buildQuery(params)
-  const res = await fetch(`${BASE_URL}?${query}`)
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const requestId = ++lastRequestId
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch movies')
+  try {
+    const res = await fetch(`${BASE_URL}?${query}`, {
+      signal: controller.signal,
+    })
+
+    if (!res.ok) {
+      throw new MovieApiError('Failed to fetch movies', res.status)
+    }
+
+    const data = (await res.json()) as MovieSearchResponse
+
+    if (requestId !== lastRequestId) {
+      throw new MovieApiError('Stale response discarded')
+    }
+
+    return data
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new MovieApiError('Request timed out')
+    }
+    if (error instanceof MovieApiError) {
+      throw error
+    }
+    throw new MovieApiError(error instanceof Error ? error.message : 'Unknown error')
+  } finally {
+    clearTimeout(timeout)
   }
-
-  const data = (await res.json()) as MovieSearchResponse
-  return data
 }
