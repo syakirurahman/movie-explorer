@@ -14,7 +14,7 @@ const favorites = useFavoritesStore()
           Movies you saved across the app. They stay here thanks to local storage.
         </p>
       </div>
-      <VChip color="amber" variant="tonal"> {{ favorites.favorites.length }} saved </VChip>
+      <VChip color="amber" variant="outlined"> {{ favorites.favorites.length }} saved </VChip>
     </header>
 
     <div v-if="favorites.favorites.length === 0" class="empty">

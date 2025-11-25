@@ -11,7 +11,9 @@ const variantToColor: Record<MessageVariant, string> = {
   error: 'error',
 }
 
-type Message = SnackbarQueueMessage & {
+type SnackbarObjectMessage = Extract<SnackbarQueueMessage, object>
+
+type Message = SnackbarObjectMessage & {
   id: number
   createdAt: number
 }

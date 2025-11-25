@@ -3,8 +3,7 @@ import { defineStore } from 'pinia'
 import type { Movie } from '@/services/movies'
 
 const STORAGE_KEY = 'movie-explorer:favorites'
-
-const isBrowser = typeof window !== 'undefined'
+const getStorage = () => (typeof window !== 'undefined' ? window.localStorage : null)
 
 const parseStoredMovies = (raw: string | null): Movie[] => {
   if (!raw) return []
@@ -26,10 +25,12 @@ const parseStoredMovies = (raw: string | null): Movie[] => {
 export const useFavoritesStore = defineStore('favorites', () => {
   const favorites = ref<Movie[]>([])
 
+  const storage = getStorage()
+
   const persist = () => {
-    if (!isBrowser) return
+    if (!storage) return
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites.value))
+      storage.setItem(STORAGE_KEY, JSON.stringify(favorites.value))
     } catch {}
   }
 
@@ -58,8 +59,7 @@ export const useFavoritesStore = defineStore('favorites', () => {
   }
 
   const loadFromStorage = () => {
-    if (!isBrowser) return
-    favorites.value = parseStoredMovies(localStorage.getItem(STORAGE_KEY))
+    favorites.value = parseStoredMovies(storage?.getItem(STORAGE_KEY) ?? null)
   }
 
   loadFromStorage()
