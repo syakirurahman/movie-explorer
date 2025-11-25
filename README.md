@@ -1,73 +1,53 @@
-# movie-explorer
+# Movie Explorer
 
-This template should help get you started developing with Vue 3 in Vite.
+Movie Explorer is a Vue 3 single-page app for searching movies, paging through results, and saving favorites.
 
-## Recommended IDE Setup
+## Features
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+- Search by title, year, or IMDb ID with debounced requests.
+- Paginated results with loading skeletons and graceful error handling.
+- Responsive card grid with IMDb links.
+- Favorite/unfavorite movies with toast feedback and local persistence.
+- Dedicated favorites view to review saved movies.
 
 ## Project Setup
+
+Install dependencies:
 
 ```sh
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+Run the project:
 
 ```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+Run unit tests:
 
 ```sh
 pnpm test:unit
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+Run end-to-end tests (Playwright):
 
 ```sh
-# Install browsers for the first run
-npx playwright install
+# Install browsers once
+pnpm dlx playwright install
 
-# When testing on CI, must build the project first
+# Build first on CI
 pnpm build
 
-# Runs the end-to-end tests
+# Run the suite
 pnpm test:e2e
-# Runs the tests only on Chromium
-pnpm test:e2e --project=chromium
-# Runs the tests of a specific file
-pnpm test:e2e tests/example.spec.ts
-# Runs the tests in debug mode
-pnpm test:e2e --debug
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+## Tech Stack Used
 
-```sh
-pnpm lint
-```
+- Vue 3, TypeScript, Vite
+- Vuetify for UI components and styling
+- Pinia for state, Vue Router for routing
+- Vitest + Vue Test Utils for unit testing
+- Playwright for end-to-end testing
+- ESLint and Prettier for linting/formatting; Sass for styles
