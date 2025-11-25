@@ -183,11 +183,13 @@ const favoriteTooltip = (movie: Movie) =>
       font-size: 0.85rem;
       color: #b8bdc5;
       font-size: 12px;
+      gap: 4px;
 
       .imdb-link {
         color: var(--primary-color);
         font-weight: 700;
         text-decoration: none;
+        white-space: nowrap;
 
         &:hover {
           text-decoration: underline;

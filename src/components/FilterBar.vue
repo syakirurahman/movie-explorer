@@ -105,10 +105,14 @@ onBeforeUnmount(() => {
   form {
     display: flex;
     gap: 12px;
-    align-items: start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
     > div {
       display: flex;
       gap: 12px;
+      flex-wrap: wrap;
+      width: 100%;
     }
   }
 }
@@ -117,5 +121,18 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .filter {
+    form {
+      flex-wrap: nowrap;
+
+      > div {
+        flex-wrap: nowrap;
+        width: auto;
+      }
+    }
+  }
 }
 </style>

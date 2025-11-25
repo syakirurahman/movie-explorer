@@ -42,6 +42,7 @@ const messages = useMessagesStore()
 
   .container {
     max-width: 1200px;
+    min-height: calc(100vh - 40px);
     margin: 24px auto;
     padding: 20px;
     border: 1px solid var(--ui-border);

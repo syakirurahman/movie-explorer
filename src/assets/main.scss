@@ -38,6 +38,9 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  .v-chip {
+    flex-shrink: 0;
+  }
 }
 
 .text-muted {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { useDisplay } from 'vuetify'
 import FilterBar, { type MovieFilters } from '@/components/FilterBar.vue'
 import MovieGrid from '@/components/MovieGrid.vue'
 import { MovieApiError, searchMovies, type Movie } from '@/services/movies'
@@ -20,6 +21,8 @@ const page = ref(1)
 const totalPages = ref(1)
 const total = ref(0)
 let isDestroyed = false
+
+const { smAndDown } = useDisplay()
 
 const runSearch = async () => {
   loading.value = true
@@ -122,11 +125,12 @@ onBeforeUnmount(() => {
           Displaying {{ movies.length }} of {{ total }} movie<span v-if="total !== 1">s</span>
         </div>
         <VPagination
+          class="pagination-control"
           v-model="page"
           :length="totalPages"
-          :total-visible="5"
+          :density="smAndDown ? 'compact' : 'comfortable'"
+          total-visible="5"
           color="primary"
-          density="comfortable"
           @update:model-value="handlePage"
         />
       </div>
@@ -135,17 +139,39 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped lang="scss">
-.result-note {
-  color: #5c6b80;
-  padding: 8px 0;
-}
-
 .pagination {
   padding-top: 16px;
   display: flex;
   width: 100%;
   gap: 16px;
   justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  flex-wrap: wrap;
+
+  .result-note {
+    color: #5c6b80;
+    padding: 8px 0;
+    flex: 1 1 100%;
+  }
+  .pagination-control {
+    max-width: 100%;
+    justify-content: center;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .pagination {
+    flex-wrap: nowrap;
+
+    .result-note {
+      flex: 0 0 auto;
+    }
+    .pagination-control {
+      margin: 0;
+    }
+  }
 }
 
 .chip-spin {
